@@ -74,6 +74,53 @@
           </table>
         </div>
       </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">{{ t('orders.submittedOrders.title') }} ({{ purchaseOrders.length }})</h3>
+        </div>
+        <div v-if="purchaseOrders.length === 0" class="no-data">{{ t('common.noData') }}</div>
+        <div v-else class="table-container">
+          <table class="po-table">
+            <thead>
+              <tr>
+                <th class="col-supplier">{{ t('orders.submittedOrders.supplier') }}</th>
+                <th class="col-items">{{ t('orders.submittedOrders.items') }}</th>
+                <th class="col-value">{{ t('orders.submittedOrders.totalCost') }}</th>
+                <th class="col-status">{{ t('orders.submittedOrders.status') }}</th>
+                <th class="col-date">{{ t('orders.submittedOrders.createdDate') }}</th>
+                <th class="col-date">{{ t('orders.submittedOrders.expectedDelivery') }}</th>
+                <th class="col-lead-time">{{ t('orders.submittedOrders.leadTime') }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="po in purchaseOrders" :key="po.id">
+                <td class="col-supplier"><strong>{{ po.supplier_name }}</strong></td>
+                <td class="col-items">
+                  <details class="items-details">
+                    <summary class="items-summary">
+                      {{ t('orders.itemsCount', { count: po.items.length }) }}
+                    </summary>
+                    <div class="items-dropdown">
+                      <div v-for="(item, idx) in po.items" :key="idx" class="item-entry">
+                        <span class="item-name">{{ item.item_name }}</span>
+                        <span class="item-meta">{{ t('orders.quantity') }}: {{ item.quantity }} @ {{ currencySymbol }}{{ item.unit_cost }}</span>
+                      </div>
+                    </div>
+                  </details>
+                </td>
+                <td class="col-value"><strong>{{ currencySymbol }}{{ po.total_cost.toLocaleString() }}</strong></td>
+                <td class="col-status">
+                  <span :class="['badge', getPOStatusClass(po.status)]">{{ po.status }}</span>
+                </td>
+                <td class="col-date">{{ formatDate(po.created_date) }}</td>
+                <td class="col-date">{{ formatDate(po.expected_delivery_date) }}</td>
+                <td class="col-lead-time">{{ po.lead_time_days }} {{ t('purchaseOrder.days') }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -95,6 +142,7 @@ export default {
     const loading = ref(true)
     const error = ref(null)
     const orders = ref([])
+    const purchaseOrders = ref([])
 
     // Use shared filters
     const {
@@ -109,7 +157,10 @@ export default {
       try {
         loading.value = true
         const filters = getCurrentFilters()
-        const fetchedOrders = await api.getOrders(filters)
+        const [fetchedOrders, fetchedPurchaseOrders] = await Promise.all([
+          api.getOrders(filters),
+          api.getPurchaseOrders()
+        ])
 
         // Sort orders by order_date (earliest first)
         orders.value = fetchedOrders.sort((a, b) => {
@@ -117,6 +168,7 @@ export default {
           const dateB = new Date(b.order_date)
           return dateA - dateB
         })
+        purchaseOrders.value = fetchedPurchaseOrders
       } catch (err) {
         error.value = 'Failed to load orders: ' + err.message
       } finally {
@@ -143,6 +195,17 @@ export default {
       return statusMap[status] || 'info'
     }
 
+    const getPOStatusClass = (status) => {
+      const statusMap = {
+        'Pending': 'warning',
+        'Delivered': 'success',
+        'Shipped': 'info',
+        'Processing': 'warning',
+        'Backordered': 'danger'
+      }
+      return statusMap[status] || 'info'
+    }
+
     const formatDate = (dateString) => {
       const { currentLocale } = useI18n()
       const locale = currentLocale.value === 'ja' ? 'ja-JP' : 'en-US'
@@ -160,8 +223,10 @@ export default {
       loading,
       error,
       orders,
+      purchaseOrders,
       getOrdersByStatus,
       getOrderStatusClass,
+      getPOStatusClass,
       formatDate,
       currencySymbol,
       translateProductName,
@@ -201,6 +266,26 @@ export default {
 
 .col-value {
   width: 120px;
+}
+
+.po-table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+.col-supplier {
+  width: 170px;
+}
+
+.col-lead-time {
+  width: 110px;
+}
+
+.no-data {
+  padding: 2rem;
+  text-align: center;
+  color: #94a3b8;
+  font-size: 0.875rem;
 }
 
 /* Items details styling */

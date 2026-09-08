@@ -6,6 +6,7 @@ export default {
     orders: 'Orders',
     finance: 'Finance',
     demandForecast: 'Demand Forecast',
+    restocking: 'Restocking',
     companyName: 'Catalyst Components',
     subtitle: 'Inventory Management System'
   },
@@ -126,6 +127,16 @@ export default {
       status: 'Status',
       expectedDelivery: 'Expected Delivery',
       actualDelivery: 'Actual Delivery'
+    },
+    submittedOrders: {
+      title: 'Submitted Purchase Orders',
+      supplier: 'Supplier',
+      items: 'Items',
+      totalCost: 'Total Cost',
+      status: 'Status',
+      createdDate: 'Created Date',
+      expectedDelivery: 'Expected Delivery',
+      leadTime: 'Lead Time'
     }
   },
 
@@ -185,6 +196,60 @@ export default {
       change: 'Change',
       trend: 'Trend',
       period: 'Period'
+    }
+  },
+
+  // Purchase Orders
+  purchaseOrder: {
+    createTitle: 'Create Purchase Order',
+    viewTitle: 'Purchase Order Details',
+    itemName: 'Item',
+    supplierName: 'Supplier Name',
+    quantity: 'Quantity',
+    unitCost: 'Unit Cost',
+    notes: 'Notes',
+    status: 'Status',
+    createdDate: 'Created Date',
+    expectedDelivery: 'Expected Delivery',
+    leadTime: 'Lead Time',
+    days: 'days',
+    totalCost: 'Total Cost',
+    submit: 'Create Purchase Order',
+    submitting: 'Creating...',
+    submitError: 'Failed to create purchase order',
+    loadError: 'Failed to load purchase order',
+    table: {
+      sku: 'SKU',
+      itemName: 'Item Name',
+      quantity: 'Quantity',
+      unitCost: 'Unit Cost'
+    }
+  },
+
+  // Restocking
+  restocking: {
+    title: 'Restocking',
+    description: 'Allocate a budget to automatically recommend restocking quantities',
+    budgetLabel: 'Restocking Budget',
+    budgetHint: 'Drag the slider to set how much you want to spend on restocking',
+    recommendedItems: 'Recommended Items',
+    emptyState: 'No items recommended at this budget level',
+    placeOrder: 'Place Order',
+    placingOrder: 'Placing Order...',
+    successMessage: 'Purchase order placed successfully',
+    placeOrderError: 'Failed to place purchase order',
+    loadError: 'Failed to load demand forecasts',
+    table: {
+      sku: 'SKU',
+      name: 'Name',
+      trend: 'Trend',
+      quantity: 'Quantity',
+      unitCost: 'Unit Cost',
+      lineTotal: 'Line Total'
+    },
+    summary: {
+      totalCost: 'Total Committed Cost',
+      remainingBudget: 'Remaining Budget'
     }
   },
 

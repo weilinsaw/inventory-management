@@ -6,6 +6,7 @@ export default {
     orders: '注文',
     finance: '財務',
     demandForecast: '需要予測',
+    restocking: '再入荷',
     companyName: '触媒コンポーネンツ',
     subtitle: '在庫管理システム'
   },
@@ -126,6 +127,16 @@ export default {
       status: 'ステータス',
       expectedDelivery: '予定配達日',
       actualDelivery: '実際の配達日'
+    },
+    submittedOrders: {
+      title: '発注済み購買注文',
+      supplier: '仕入先',
+      items: '品目',
+      totalCost: '総コスト',
+      status: 'ステータス',
+      createdDate: '作成日',
+      expectedDelivery: '予定配達日',
+      leadTime: 'リードタイム'
     }
   },
 
@@ -185,6 +196,60 @@ export default {
       change: '変化',
       trend: 'トレンド',
       period: '期間'
+    }
+  },
+
+  // Purchase Orders
+  purchaseOrder: {
+    createTitle: '購買注文を作成',
+    viewTitle: '購買注文の詳細',
+    itemName: '品目',
+    supplierName: '仕入先名',
+    quantity: '数量',
+    unitCost: '単価',
+    notes: '備考',
+    status: 'ステータス',
+    createdDate: '作成日',
+    expectedDelivery: '予定配達日',
+    leadTime: 'リードタイム',
+    days: '日',
+    totalCost: '総コスト',
+    submit: '購買注文を作成',
+    submitting: '作成中...',
+    submitError: '購買注文の作成に失敗しました',
+    loadError: '購買注文の読み込みに失敗しました',
+    table: {
+      sku: 'SKU',
+      itemName: '品目名',
+      quantity: '数量',
+      unitCost: '単価'
+    }
+  },
+
+  // Restocking
+  restocking: {
+    title: '再入荷',
+    description: '予算を設定して再入荷数量を自動的に提案します',
+    budgetLabel: '再入荷予算',
+    budgetHint: 'スライダーを動かして再入荷に使う予算を設定してください',
+    recommendedItems: '推奨品目',
+    emptyState: 'この予算レベルでは推奨される品目がありません',
+    placeOrder: '注文する',
+    placingOrder: '注文中...',
+    successMessage: '購買注文が正常に作成されました',
+    placeOrderError: '購買注文の作成に失敗しました',
+    loadError: '需要予測の読み込みに失敗しました',
+    table: {
+      sku: 'SKU',
+      name: '名前',
+      trend: 'トレンド',
+      quantity: '数量',
+      unitCost: '単価',
+      lineTotal: '小計'
+    },
+    summary: {
+      totalCost: '合計確定コスト',
+      remainingBudget: '残り予算'
     }
   },
 
