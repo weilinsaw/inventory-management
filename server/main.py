@@ -1,3 +1,4 @@
+from datetime import date, timedelta
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
@@ -89,6 +90,7 @@ class DemandForecast(BaseModel):
     forecasted_demand: int
     trend: str
     period: str
+    unit_cost: float
 
 class BacklogItem(BaseModel):
     id: str
@@ -101,23 +103,29 @@ class BacklogItem(BaseModel):
     priority: str
     has_purchase_order: Optional[bool] = False
 
-class PurchaseOrder(BaseModel):
-    id: str
-    backlog_item_id: str
-    supplier_name: str
+class PurchaseOrderLineItem(BaseModel):
+    item_sku: str
+    item_name: str
     quantity: int
     unit_cost: float
+
+class PurchaseOrder(BaseModel):
+    id: str
+    backlog_item_id: Optional[str] = None
+    supplier_name: str
+    items: List[PurchaseOrderLineItem]
+    total_cost: float
+    lead_time_days: int
     expected_delivery_date: str
     status: str
     created_date: str
     notes: Optional[str] = None
 
 class CreatePurchaseOrderRequest(BaseModel):
-    backlog_item_id: str
+    backlog_item_id: Optional[str] = None
     supplier_name: str
-    quantity: int
-    unit_cost: float
-    expected_delivery_date: str
+    items: List[PurchaseOrderLineItem]
+    lead_time_days: Optional[int] = 14  # WHY: default 2-week lead time when caller doesn't specify one
     notes: Optional[str] = None
 
 # API endpoints
@@ -178,6 +186,42 @@ def get_backlog():
         item_dict["has_purchase_order"] = has_po
         result.append(item_dict)
     return result
+
+@app.get("/api/purchase-orders", response_model=List[PurchaseOrder])
+def get_purchase_orders():
+    """Get all purchase orders (Dashboard single-item POs and Restocking multi-item orders)"""
+    return purchase_orders
+
+@app.get("/api/purchase-orders/{backlog_item_id}", response_model=PurchaseOrder)
+def get_purchase_order_by_backlog_item(backlog_item_id: str):
+    """Get the purchase order associated with a specific backlog item"""
+    po = next((po for po in purchase_orders if po.get("backlog_item_id") == backlog_item_id), None)
+    if not po:
+        raise HTTPException(status_code=404, detail="Purchase order not found for this backlog item")
+    return po
+
+@app.post("/api/purchase-orders", response_model=PurchaseOrder, status_code=201)
+def create_purchase_order(request: CreatePurchaseOrderRequest):
+    """Create a purchase order (single-item from Dashboard or multi-item from Restocking)"""
+    total_cost = round(sum(item.quantity * item.unit_cost for item in request.items), 2)
+    created = date.today()
+    # WHY: no DB, so id is derived from current list length; mutating the in-memory
+    # `purchase_orders` list (imported by reference from mock_data) persists it for
+    # the life of the process, resetting on restart like the rest of the mock data.
+    new_po = PurchaseOrder(
+        id=f"po-{len(purchase_orders) + 1:03d}",
+        backlog_item_id=request.backlog_item_id,
+        supplier_name=request.supplier_name,
+        items=request.items,
+        total_cost=total_cost,
+        lead_time_days=request.lead_time_days,
+        expected_delivery_date=(created + timedelta(days=request.lead_time_days)).isoformat(),
+        status="Pending",
+        created_date=created.isoformat(),
+        notes=request.notes
+    )
+    purchase_orders.append(new_po.model_dump())
+    return new_po
 
 @app.get("/api/dashboard/summary")
 def get_dashboard_summary(
