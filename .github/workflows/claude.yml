@@ -26,6 +26,11 @@ jobs:
       actions: read
     env:
       ANTHROPIC_BASE_URL: ${{ secrets.ANTHROPIC_BASE_URL }}
+      # Gateway only recognizes this model group; alias opus/sonnet/haiku to it so the
+      # plugin's default model requests don't get rejected with an unknown-model error.
+      ANTHROPIC_DEFAULT_SONNET_MODEL: au.anthropic.claude-sonnet-5
+      ANTHROPIC_DEFAULT_OPUS_MODEL: au.anthropic.claude-sonnet-5
+      ANTHROPIC_DEFAULT_HAIKU_MODEL: au.anthropic.claude-haiku-4-5-20251001-v1:0
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
